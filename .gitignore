@@ -1,0 +1,36 @@
+# Environment secrets – NEVER commit
+.env
+
+# Local runtime data
+data/
+*.db
+
+# Windows ffmpeg binary (not needed in Docker)
+ffmpeg.exe
+ffmpeg/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyc
+.venv/
+venv/
+*.egg-info/
+
+# Pytest
+.pytest_cache/
+tests/__pycache__/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Scratch
+scratch/
+
+# Large binary assets – use Git LFS or host externally
+*.sf2
+assets/soundfonts/
+
+# Local Windows FluidSynth binaries – download separately (see README)
+tools/

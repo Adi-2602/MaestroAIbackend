@@ -1,0 +1,43 @@
+{
+  "title": "Rain Trace",
+  "style": "Lo-fi",
+  "mood": "Relaxed",
+  "key": "A minor",
+  "tempo_bpm": 78,
+  "time_signature": "4/4",
+  "sections": [
+    {
+      "name": "Verse",
+      "bars": 4,
+      "chords": ["Am", "Fmaj7", "C", "G"],
+      "melody": [
+        { "pitch": "A4", "duration_beats": 4, "lyric_syllable": "rain" },
+        { "pitch": "C5", "duration_beats": 4, "lyric_syllable": "falls" },
+        { "pitch": "E5", "duration_beats": 4, "lyric_syllable": "soft" },
+        { "pitch": "rest", "duration_beats": 4, "lyric_syllable": null }
+      ],
+      "lyric_lines": ["Rain on the glass", "Streetlights fade slow"]
+    },
+    {
+      "name": "Hook",
+      "bars": 4,
+      "chords": ["Fmaj7", "G", "Am", "Em"],
+      "melody": [
+        { "pitch": "C5", "duration_beats": 4, "lyric_syllable": "stay" },
+        { "pitch": "B4", "duration_beats": 4, "lyric_syllable": "near" },
+        { "pitch": "A4", "duration_beats": 4, "lyric_syllable": "tonight" },
+        { "pitch": "rest", "duration_beats": 4, "lyric_syllable": null }
+      ],
+      "lyric_lines": ["Stay near tonight", "Let the city breathe"]
+    }
+  ],
+  "lyrics": [
+    "Rain on the glass",
+    "Streetlights fade slow",
+    "Stay near tonight",
+    "Let the city breathe"
+  ],
+  "style_notes": ["dusty keys", "sidechained pad", "soft swing"],
+  "originality_notes": ["common progression, editable melody contour"],
+  "disclaimer": "Generated music may resemble existing works. Review and clear rights before commercial use."
+}
