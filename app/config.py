@@ -9,6 +9,10 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 ENV_FILE = Path(__file__).resolve().parents[1] / ".env"
 
+# The deployed frontend is always allowed, even when CORS_ORIGIN is unset or
+# set to something else on the host, so registration and login work from it.
+DEPLOYED_FRONTEND_ORIGINS = ["https://maestro-ai-kappa.vercel.app"]
+
 
 class Settings(BaseSettings):
     app_name: str = Field(default="Maestro AI", alias="APP_NAME")
@@ -64,7 +68,13 @@ class Settings(BaseSettings):
     def origins(self) -> List[str]:
         if self.allowed_origins.strip() == "*":
             return ["*"]
-        return [origin.strip() for origin in self.allowed_origins.split(",") if origin.strip()]
+        # Browsers send the Origin header without a trailing slash, so
+        # "https://site.app/" in the env var would never match.
+        origins = [o.strip().rstrip("/") for o in self.allowed_origins.split(",") if o.strip()]
+        for origin in DEPLOYED_FRONTEND_ORIGINS:
+            if origin not in origins:
+                origins.append(origin)
+        return origins
 
     @property
     def normalized_api_prefix(self) -> str:
