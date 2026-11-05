@@ -13,7 +13,8 @@ from pathlib import Path
 from zipfile import ZIP_DEFLATED, ZipFile
 
 from fastapi import APIRouter, Depends, FastAPI, Header, HTTPException, Response, Query
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
+from starlette.requests import Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from .config import Settings, get_settings
@@ -234,6 +235,23 @@ def get_current_user(
 
 settings = get_settings()
 app = FastAPI(title=settings.app_name, version="0.1.0")
+
+
+@app.middleware("http")
+async def unhandled_error_as_json(request: Request, call_next):
+    # Registered before CORSMiddleware so it sits inside it: a crash then
+    # still gets CORS headers, and the browser shows the real error instead
+    # of a misleading "blocked by CORS policy" / "Failed to fetch".
+    try:
+        return await call_next(request)
+    except Exception as exc:
+        logger.exception("Unhandled error on %s %s", request.method, request.url.path)
+        return JSONResponse(
+            status_code=500,
+            content={"detail": f"Server error ({type(exc).__name__}). Check the backend logs."},
+        )
+
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.origins,

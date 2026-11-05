@@ -31,3 +31,24 @@ def test_register_preflight_from_frontend():
     )
     assert response.status_code == 200
     assert response.headers["access-control-allow-origin"] == FRONTEND
+
+
+def test_server_error_keeps_cors_headers():
+    from app.main import get_store
+
+    def broken_store():
+        raise RuntimeError("database unreachable")
+
+    app.dependency_overrides[get_store] = broken_store
+    try:
+        client = TestClient(app, raise_server_exceptions=False)
+        response = client.post(
+            "/api/v1/auth/register",
+            json={"name": "Test User", "email": "t@example.com", "password": "secret123"},
+            headers={"Origin": FRONTEND},
+        )
+    finally:
+        app.dependency_overrides.clear()
+    assert response.status_code == 500
+    assert response.headers["access-control-allow-origin"] == FRONTEND
+    assert "RuntimeError" in response.json()["detail"]
