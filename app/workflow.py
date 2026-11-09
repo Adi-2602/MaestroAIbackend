@@ -242,7 +242,6 @@ def get_llm(temperature: float = 0.7) -> ChatOpenAI:
         temperature=temperature,
         max_tokens=4096,
         request_timeout=settings.nim_timeout_seconds,
-        # Reasoning models are too slow for a multi-agent pipeline; answer directly.
         extra_body={"chat_template_kwargs": {"enable_thinking": False}},
     )
 
