@@ -242,6 +242,8 @@ def get_llm(temperature: float = 0.7) -> ChatOpenAI:
         temperature=temperature,
         max_tokens=4096,
         request_timeout=settings.nim_timeout_seconds,
+        # Reasoning models are too slow for a multi-agent pipeline; answer directly.
+        extra_body={"chat_template_kwargs": {"enable_thinking": False}},
     )
 
 async def _chat_json(llm: ChatOpenAI, system_prompt: str, user_prompt: str, repair_goal: str) -> Dict[str, Any]:
@@ -276,6 +278,7 @@ async def _chat_json(llm: ChatOpenAI, system_prompt: str, user_prompt: str, repa
             temperature=0.1,
             max_tokens=4096,
             request_timeout=settings.nim_timeout_seconds,
+            extra_body=llm.extra_body,
         )
         repair_response = await repair_llm.ainvoke([
             SystemMessage(content=repair_system),

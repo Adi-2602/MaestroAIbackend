@@ -617,6 +617,8 @@ class NimClient:
             "temperature": temperature,
             "top_p": 0.9,
             "max_tokens": max_tokens,
+            # Reasoning models are too slow for a multi-agent pipeline; answer directly.
+            "chat_template_kwargs": {"enable_thinking": False},
         }
 
         timeout = httpx.Timeout(
