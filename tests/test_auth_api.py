@@ -107,3 +107,26 @@ def test_otp_locks_after_too_many_wrong_attempts(tmp_path) -> None:
         assert after_lock.status_code == 400
     finally:
         app.dependency_overrides.clear()
+
+
+def test_otp_email_uses_brevo_when_configured(monkeypatch) -> None:
+    from app.config import Settings
+
+    sent = {}
+
+    class FakeResponse:
+        def raise_for_status(self) -> None:
+            pass
+
+    def fake_post(url, headers, json, timeout):
+        sent.update(url=url, headers=headers, json=json)
+        return FakeResponse()
+
+    monkeypatch.setattr(main.httpx, "post", fake_post)
+    settings = Settings(BREVO_API_KEY="xkeysib-test", SMTP_SENDER="me@example.com")
+    assert main.send_otp_email("user@example.com", "12345678", settings) is True
+    assert sent["url"] == "https://api.brevo.com/v3/smtp/email"
+    assert sent["headers"]["api-key"] == "xkeysib-test"
+    assert sent["json"]["sender"]["email"] == "me@example.com"
+    assert sent["json"]["to"] == [{"email": "user@example.com"}]
+    assert "12345678" in sent["json"]["textContent"]

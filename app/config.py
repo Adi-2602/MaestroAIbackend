@@ -61,6 +61,8 @@ class Settings(BaseSettings):
     smtp_password: str = Field(default="", alias="SMTP_PASSWORD")
     smtp_sender: str = Field(default="noreply@maestro.studio", alias="SMTP_SENDER")
     smtp_use_tls: bool = Field(default=True, alias="SMTP_USE_TLS")
+    # Brevo sends over HTTPS, for hosts that block SMTP ports (e.g. Render's free plan).
+    brevo_api_key: str = Field(default="", alias="BREVO_API_KEY")
 
     model_config = SettingsConfigDict(env_file=ENV_FILE, env_file_encoding="utf-8", extra="ignore")
 

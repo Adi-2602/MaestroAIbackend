@@ -58,6 +58,7 @@ from .storage import DraftStoreProtocol as DraftStore, create_draft_store
 
 from datetime import datetime, timezone, timedelta
 import smtplib
+import httpx
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
@@ -104,8 +105,9 @@ def verify_password(password: str, stored_hash: str) -> bool:
 
 
 def send_otp_email(email: str, otp: str, settings: Settings) -> bool:
-    if not settings.smtp_host or not settings.smtp_user or not settings.smtp_password:
-        _log_dev_otp(email, otp, settings, "SMTP not configured")
+    smtp_configured = bool(settings.smtp_host and settings.smtp_user and settings.smtp_password)
+    if not settings.brevo_api_key and not smtp_configured:
+        _log_dev_otp(email, otp, settings, "Email delivery not configured")
         return False
 
     try:
@@ -196,6 +198,23 @@ Maestro AI Team
         msg.attach(MIMEText(text_content, "plain"))
         msg.attach(MIMEText(html_content, "html"))
 
+        if settings.brevo_api_key:
+            response = httpx.post(
+                "https://api.brevo.com/v3/smtp/email",
+                headers={"api-key": settings.brevo_api_key, "accept": "application/json"},
+                json={
+                    "sender": {"name": settings.app_name, "email": settings.smtp_sender},
+                    "to": [{"email": email}],
+                    "subject": msg["Subject"],
+                    "textContent": text_content,
+                    "htmlContent": html_content,
+                },
+                timeout=15,
+            )
+            response.raise_for_status()
+            logger.info("Successfully sent OTP email to %s via Brevo", email)
+            return True
+
         # Send
         if settings.smtp_use_tls:
             server = smtplib.SMTP(settings.smtp_host, settings.smtp_port, timeout=10)
@@ -210,7 +229,7 @@ Maestro AI Team
         return True
     except Exception as e:
         logger.exception("Failed to send OTP email to %s: %s", email, e)
-        _log_dev_otp(email, otp, settings, "SMTP delivery failed")
+        _log_dev_otp(email, otp, settings, "Email delivery failed")
         return False
 
 
