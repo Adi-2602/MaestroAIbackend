@@ -120,3 +120,11 @@ def test_normalize_plan_preserves_requested_total_bars() -> None:
 
     assert sum(section["bars"] for section in normalized["sections"]) == 12
     assert normalized["title"] == "Storm Wire"
+
+
+def test_extract_json_object_ignores_reasoning_block() -> None:
+    from app.nim_client import extract_json_object
+
+    text = '<think>Maybe {"draft": 1} works? Let me think.</think>\n```json\n{"title": "Song"}\n```'
+    assert extract_json_object(text) == {"title": "Song"}
+    assert extract_json_object('thinking without opening tag {"x": 0}</think>{"title": "A"}') == {"title": "A"}
