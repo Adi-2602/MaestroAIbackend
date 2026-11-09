@@ -437,8 +437,18 @@ Current composition JSON:
 """.strip()
 
 
+def strip_reasoning(text: str) -> str:
+    """Drop the <think>...</think> block that reasoning models put before their answer.
+
+    Some models omit the opening tag, so everything up to the last closing tag is dropped.
+    """
+    if "</think>" in text:
+        return text.rsplit("</think>", 1)[1]
+    return text
+
+
 def extract_json_object(text: str) -> Dict[str, Any]:
-    cleaned = text.strip()
+    cleaned = strip_reasoning(text).strip()
     if cleaned.startswith("```"):
         cleaned = cleaned.strip("`")
         cleaned = cleaned.removeprefix("json").strip()
