@@ -617,6 +617,7 @@ class NimClient:
             "temperature": temperature,
             "top_p": 0.9,
             "max_tokens": max_tokens,
+            "chat_template_kwargs": {"enable_thinking": False},
         }
 
         timeout = httpx.Timeout(
